@@ -8,17 +8,22 @@
 
 class Node
 {
+    std::string name;
+
     private:
-        std::string name;
         std::map<std::string, Node> Links;
-        bool isUsable = false;
+        
 
     public:
+
+        bool isUsable = false;
+
+        Node();
 
         std::string Get_Name();
         void Set_Name(std::string name1);
         Node Get_Node(std::string node_name);
-        Node Set_Node(std::string node_name);
+        void Add_Node(std::string node_name);
 
 };
 
