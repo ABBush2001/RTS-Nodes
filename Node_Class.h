@@ -4,26 +4,27 @@
 #include <iterator>
 #include <map>
 #include <stdbool.h>
-
+using namespace std;
 
 class Node
 {
-    std::string name;
+    string name;
 
     private:
-        std::map<std::string, Node> Links;
+        
         
 
     public:
 
         bool isUsable = false;
+        map<string, Node> Links;
 
         Node();
 
         std::string Get_Name();
-        void Set_Name(std::string name1);
-        Node Get_Node(std::string node_name);
-        void Add_Node(std::string node_name);
+        void Set_Name(string name1);
+        Node Get_Node(string node_name);
+        void Add_Node(string node_name);
 
 };
 
