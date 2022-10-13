@@ -3,50 +3,93 @@
 #include <iostream>
 #include <string>
 #include <regex>
+#include <iterator>
+#include <list>
+#include <algorithm>
+
 using namespace std;
 
-void SetDependentNode(Node parent, Node child, map<string, Node> masterList) {
+const std::string WHITESPACE = " \n\r\t\f\v";
+ 
+std::string ltrim(const std::string &s)
+{
+    size_t start = s.find_first_not_of(WHITESPACE);
+    return (start == std::string::npos) ? "" : s.substr(start);
+}
+ 
+std::string rtrim(const std::string &s)
+{
+    size_t end = s.find_last_not_of(WHITESPACE);
+    return (end == std::string::npos) ? "" : s.substr(0, end + 1);
+}
+ 
+std::string trim(const std::string &s) {
+    return rtrim(ltrim(s));
+}
+
+void SetDependentNode(Node parent, Node child, list<Node> &masterList) {
         //take in a parent and child node; if child already exists, then grab it from master list and add to list for parent node; else, update parent node and master list
         //if parent already exists, grab it from master list and update its child list
 
-        /*If both the child and the parent already exist*/
-        if((masterList.find(parent.Get_Name()) != masterList.end()) && (masterList.find(child.Get_Name()) != masterList.end()))
+        bool parentFound = false;
+        bool childFound = false;
+
+        //check if parent and child already exists in masterlist
+        list<Node>::iterator it;
+
+        for(it = masterList.begin(); it != masterList.end(); it++)
         {
-            return;
-        }
-        /*Child already exists*/
-        if(masterList.find(child.Get_Name()) != masterList.end())
-        {
-            parent.Add_Node(child.Get_Name());
-            parent.isUsable = true;
-        }
-        /*else if child doesn't already exists*/
-        else if(masterList.find(child.Get_Name()) == masterList.end())
-        {
-            parent.Add_Node(child.Get_Name());
-            parent.isUsable = true;
+            //if parent found
+            if(it->Get_Name() == parent.Get_Name())
+            {
+                //set parent equal to node from list
+                parent = it->Get_Node(parent.Get_Name());
+
+                //check if child already exists in the parent's map
+                if(parent.Get_Node(child.Get_Name()).Get_Name() == child.Get_Name())
+                {
+                }
+                else
+                {
+                    parent.Add_Node(child.Get_Name());
+                    parent.isUsable = true;
+                }
+
+                //re-add parent to the masterList
+                it->Links = parent.Links;
+                it->isUsable = parent.isUsable;
+
+                parentFound = true;
+
+            }
+
+            //if child found
+            if(it->Get_Name() == child.Get_Name())
+            {
+                childFound = true;
+            }
         }
 
-        /*If parent already exists*/
-        if(masterList.find(parent.Get_Name()) != masterList.end())
+        //if parent not found
+        if(parentFound == false)
         {
-            parent = masterList.find(parent.Get_Name())->second;
+            //add child to list and then add to masterlist
             parent.Add_Node(child.Get_Name());
             parent.isUsable = true;
-            masterList.find(parent.Get_Name())->second = parent;
+            masterList.push_back(parent);
         }
-        /*If parent doesn't already exist*/
-        else 
+
+        //if child not found
+        if(childFound == false)
         {
-            parent.isUsable = true;
-            masterList.insert({parent.Get_Name(), parent});
+            masterList.push_back(child);
         }
 }
 
 
 int main(int argc, char const *argv[])
 {
-    map<string, Node> masterList; 
+    list<Node> masterList; 
 
     ifstream myfile;
 
@@ -69,30 +112,33 @@ int main(int argc, char const *argv[])
 
             if(regex_search(myline, m, regex(" .*")))
             {
-                child.Set_Name(m[0]);
+                child.Set_Name(trim(m[0]));
             }
-            
+
             SetDependentNode(parent, child, masterList);
+
         }
         
     }
     
     myfile.close();
-    
-    map<string, Node>::iterator it;
-    
+
     /*iterate through masterList, output each parent with arrows to its children*/
-    for (it = masterList.begin(); it != masterList.end(); it++)
+
+    list<Node>::iterator it;
+
+    for(it = masterList.begin(); it != masterList.end(); it++)
     {
-        map<string, Node>::iterator i;
-        
-        for(i = it->second.Links.begin(); i != it->second.Links.end(); i++)
+        cout << it->Get_Name() << endl;
+
+        /*map<string, Node>::iterator i;
+
+        for(i = it->Links.begin(); i != it->Links.end(); ++i)
         {
-            cout << it->second.Get_Name() << " ---> " << i->second.Get_Name() << endl;
-        }
+            cout << " ---> " << i->first << endl;
+        }*/
     }
 
-    
     /*Expected Output:
     
     Handgun ---> Bullets

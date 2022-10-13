@@ -10,10 +10,6 @@ class Node
 {
     string name;
 
-    private:
-        
-        
-
     public:
 
         bool isUsable = false;

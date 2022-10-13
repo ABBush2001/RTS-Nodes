@@ -38,6 +38,6 @@ using namespace std;
             
         //make a new node
         Node node1;
-        Links.insert({node_name, node1});
+        Links.insert(std::map<string, Node>::value_type(node_name, node1));
     }
 
