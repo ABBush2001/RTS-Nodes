@@ -1,36 +1,54 @@
-from asyncio.windows_events import NULL
-import PySimpleGUI as sg
+from dataclasses import replace
+import string
+import tkinter as tk
+import re
 
-#class for Nodes
-class Nodes:
-    def __init__(self, name, links):
-        self.name = name
-        self.links = self.links
+def fileReadIn():
+    f = open("list.txt", "r")
 
-    def Get_Name(self):
-        return self.name
+    links = []
 
-    def Set_Name(self, name1):
-        self.name = name1
+    for line in f:
+        if 'ml' in line:
+            firstString = line.replace('ml:', '')
+            masterList = firstString.split(' ')
+            masterList.remove('')
+            masterList.remove('\n')
+        elif re.search('.*:.*', line) != None:
+            parentAndChild = re.split(':', line)
+            childStr = parentAndChild[1]
+            childStr = childStr.replace('\n', '')
+            newChilStr = childStr.split(' ')
+            newChilStr.remove('')
+            newChilStr.remove('')
+            parentAndChild[1] = newChilStr
+            links.append(parentAndChild)
 
-    def Get_Node(self, node_name):
-        if node_name in self.links:
-            return self.links.find(node_name).second
-        else:
-            return NULL
+    f.close()  
 
-    def Add_Node(self, node_name):
-        #check if node already exists
-        if node_name in self.links:
-            return
-            
-        #make a new node
-        node1 = Nodes()
-        self.links[node_name] = node1
-
-#read in the masterlist from the file and generate the tree
+    return masterList, links  
 
 
+
+#read in the masterlist from the file as a list, and links as dictionary, then and generate the tree
+masterList, links = fileReadIn()
+
+print(links)
 
 #open the gui window
-sg.Window(title="Hello World", layout=[[]], margins=(100, 50)).read()
+window = tk.Tk()
+window.geometry('800x800')
+
+#make labels for each of the elements in the masterlist
+for i in links:
+    nodeparent = tk.Label(text='parent: ' + str(i[0]), background='black')  
+    if not i[1]:
+        node = tk.Label(text='children: None', background='black')
+    else:
+        chstr = 'children: '
+        for j in i[1]:
+            chstr = chstr + j + " "
+        node = tk.Label(text=chstr, background='black')
+    nodeparent.pack()
+    node.pack()
+window.mainloop()

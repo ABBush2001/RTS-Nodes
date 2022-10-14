@@ -114,25 +114,36 @@ void menu(list<Node> &masterList) {
 
     list<Node>::iterator it;
 
+    myfile << "ml: ";
+
     for(it = masterList.begin(); it != masterList.end(); it++)
     {
 
-        myfile << it->Get_Name() << endl;
+        myfile << it->Get_Name() << " ";
+    }
 
-        map<string, Node>::iterator i;
+    myfile << endl;
+
+    map<string, Node>::iterator i;
+
+    for(it = masterList.begin(); it != masterList.end(); it++)
+    {
+        myfile << it->Get_Name() << ": ";
 
         for(i = it->Links.begin(); i != it->Links.end(); i++)
         {
-            myfile << " ---> " << i->first << endl;
+            myfile << i->first << " ";
         }
+
+        myfile << endl;
     }
+    
 
     myfile.close();
 
     string command = "python3 rts_window.py";
     system(command.c_str());
 
-    //delete text file
     remove("list.txt");
 }
 
