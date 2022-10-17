@@ -13,7 +13,6 @@ using namespace std;
 
 const string WHITESPACE = " \n\r\t\f\v";
 
-
 void generateList(list<Node> &masterList);
 void SetDependentNode(Node parent, Node child, list<Node> &masterList);
 void menu(list<Node> &masterList);
