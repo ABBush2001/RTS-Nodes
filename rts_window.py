@@ -152,6 +152,4 @@ for i in window.children:
 
                         canvas.create_line(val1[0], val1[1], val2[0], val2[1], arrow=tk.LAST)
 
-canvas.create_line(0, 0, 10, 10)
-
 window.mainloop()
