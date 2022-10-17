@@ -3,7 +3,7 @@ from cgitb import text
 from dataclasses import replace
 from os import link, remove
 import string
-from tkinter import Canvas
+from tkinter import Canvas, Place
 import tkinter as tk
 import re
 
@@ -59,11 +59,14 @@ links = fileReadIn()
 #open the gui window
 window = tk.Tk()
 window.geometry('1000x1000')
-canvas = Canvas(window)
+canvas = Canvas(window, width=1000, height=1000)
+canvas.pack()
 
 cur_row = []
 pos_x = 300
 pos_y = 0
+
+dictPos = {}
 
 #generate the top row
 for i in links:
@@ -79,16 +82,16 @@ for i in links:
 
     if isChild == False:
         nodeparent.place(x=pos_x, y=pos_y)
-        pos_x += 80
+        dictPos[str(i[0])] = (pos_x, pos_y)
+        pos_x += 100
         cur_row.append(str(i[0]))
 
 #make the rest of the rows
 treeFinished = False
-pos_y += 80
+pos_y += 100
 pos_x = 300
 children = []
 temp_row = []
-
 
 while treeFinished == False:
     treeFinished = True
@@ -108,10 +111,9 @@ while treeFinished == False:
                         continue
                     else:
                         node = tk.Label(text=k, background='black', name=k).place(x=pos_x, y=pos_y)
-                        nodeparent = window.children[i]
-                        #canvas.create_line(nodeparent.winfo_rootx, nodeparent.winfo_rooty, window.children[k].winfo_rootx, window.children[k].winfo_rooty)
+                        dictPos[str(k)] = (pos_x, pos_y)
                         temp_row.append(k)
-                        pos_x += 80
+                        pos_x += 100
 
     for i in temp_row:
         for j in temp_row:
@@ -121,10 +123,11 @@ while treeFinished == False:
                         if i == m:
                             window.children[i].destroy()
                             temp_row.remove(i)
+                            dictPos.pop(i)
 
     cur_row = temp_row
     temp_row = []
-    pos_y += 80
+    pos_y += 100
     pos_x = 300
 
 deleteField = tk.Text(width=52, height=2)
@@ -133,5 +136,22 @@ deleteField.place(y=720)
 quitButton = tk.Button(text='quit', command=exitProgram).place(y=720, x=780)
 
 
+
+#create lines between nodes
+for i in window.children:
+    for j in links:
+        if i == j[0]:
+            for k in window.children:
+                for m in j[1]:
+                    if m == k:
+
+                        window.update()
+
+                        val1 = dictPos[i]
+                        val2 = dictPos[k]
+
+                        canvas.create_line(val1[0], val1[1], val2[0], val2[1], arrow=tk.LAST)
+
+canvas.create_line(0, 0, 10, 10)
 
 window.mainloop()
