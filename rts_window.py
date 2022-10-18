@@ -3,9 +3,11 @@ from cgitb import text
 from dataclasses import replace
 from os import link, remove
 import string
-from tkinter import Canvas, Place
+from tkinter import *
 import tkinter as tk
 import re
+from turtle import bgcolor, color
+from unicodedata import name
 
 def exitProgram():
     window.quit()
@@ -25,6 +27,8 @@ def deleteNode():
             if input == m:
                 var = j[0] + "\n(not usable)"
                 window.children[j[0]].configure(text=var)
+                print(canvas.find_withtag(j[0] + m))
+                canvas.delete(j[0] + m)
 
 def fileReadIn():
     f = open("list.txt", "r")
@@ -58,7 +62,16 @@ links = fileReadIn()
 
 #open the gui window
 window = tk.Tk()
+
+screen_width = window.winfo_screenwidth
+screen_height = window.winfo_screenheight
+
+print(screen_width)
+print(screen_height)
+
 window.geometry('1000x1000')
+window.resizable(False, False)
+window.configure(bg='brown')
 canvas = Canvas(window, width=1000, height=1000)
 canvas.pack()
 
@@ -73,7 +86,7 @@ for i in links:
     isChild = False
 
     #make a node for the parent
-    nodeparent = tk.Label(text=str(i[0]), background='black', name=str(i[0]))
+    nodeparent = tk.Label(text=str(i[0]), background='black', name=str(i[0]), fg='white')
     #check to see if node is a child of any other node - if not, place at top of window
     for m in links:
         for k in m[1]:
@@ -110,7 +123,7 @@ while treeFinished == False:
                     if k in temp_row:
                         continue
                     else:
-                        node = tk.Label(text=k, background='black', name=k).place(x=pos_x, y=pos_y)
+                        node = tk.Label(text=k, background='black', name=k, fg='white').place(x=pos_x, y=pos_y)
                         dictPos[str(k)] = (pos_x, pos_y)
                         temp_row.append(k)
                         pos_x += 100
@@ -131,7 +144,7 @@ while treeFinished == False:
     pos_x = 300
 
 deleteField = tk.Text(width=52, height=2)
-deleteButton = tk.Button(text='delete', command=deleteNode).place(y=720, x=400)
+deleteButton = tk.Button(text='delete', command=deleteNode).place(y=720, x=450)
 deleteField.place(y=720)
 quitButton = tk.Button(text='quit', command=exitProgram).place(y=720, x=780)
 
@@ -150,6 +163,6 @@ for i in window.children:
                         val1 = dictPos[i]
                         val2 = dictPos[k]
 
-                        canvas.create_line(val1[0], val1[1], val2[0], val2[1], arrow=tk.LAST)
+                        canvas.create_line(val1[0], val1[1], val2[0], val2[1], arrow=tk.LAST, tags=i + k)
 
 window.mainloop()
