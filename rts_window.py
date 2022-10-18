@@ -2,6 +2,7 @@ from ast import Delete
 from cgitb import text
 from dataclasses import replace
 from os import link, remove
+from queue import Empty
 import string
 from tkinter import *
 import tkinter as tk
@@ -23,11 +24,18 @@ def deleteNode():
             break
     
     for j in links:
+        #check for arrows going from this node to any children - if found
         for m in j[1]:
+            if input == j[0]:
+                if canvas.find_withtag(j[0] + m) != None:
+                    canvas.delete(j[0] + m)
             if input == m:
                 var = j[0] + "\n(not usable)"
-                window.children[j[0]].configure(text=var)
-                print(canvas.find_withtag(j[0] + m))
+                try:
+                    window.children[j[0]].configure(text=var)
+                except Exception:
+                    print("no parent node exists")
+                print(j[0] + m)
                 canvas.delete(j[0] + m)
 
 def fileReadIn():
@@ -66,11 +74,10 @@ window = tk.Tk()
 screen_width = window.winfo_screenwidth
 screen_height = window.winfo_screenheight
 
-print(screen_width)
-print(screen_height)
-
+window.minsize(width=1000, height=1000)
+window.maxsize(width=1000, height=1000)
 window.geometry('1000x1000')
-window.resizable(False, False)
+#window.resizable(False, False)
 window.configure(bg='brown')
 canvas = Canvas(window, width=1000, height=1000)
 canvas.pack()
