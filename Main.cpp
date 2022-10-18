@@ -12,7 +12,7 @@ using namespace std;
 
 int main(int argc, char const *argv[])
 {
-    list<Node> masterList; 
+    map<string, Node> masterList; 
 
     ifstream myfile;
 
@@ -21,6 +21,23 @@ int main(int argc, char const *argv[])
 
     //open menu window
     menu(masterList);
+
+    //update the masterlist
+    UpdateList(masterList);
+
+    map<string, Node>::iterator i;
+
+    for(i = masterList.begin(); i != masterList.end(); i++)
+    {
+        cout << i->first << endl;
+
+        map<string, Node>::iterator it;
+
+        for(it = i->second.Links.begin(); it != i->second.Links.end(); it++)
+        {
+            cout << it->first << endl;
+        }
+    }
 
     return 0;
 }

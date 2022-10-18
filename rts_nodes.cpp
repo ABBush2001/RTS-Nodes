@@ -10,7 +10,77 @@
 
 using namespace std;
 
-void generateList(list<Node> &masterList) {
+//called after GUI is closed to update list
+void UpdateList(map<string, Node> &masterList) {
+
+    ifstream del_file;
+    ifstream un_file;
+
+    del_file.open("delete.txt");
+    un_file.open("unusable.txt");
+
+    if(del_file.is_open())
+    {
+        string myline;
+
+        while(getline(del_file, myline))
+        {
+            map<string, Node>::iterator i;
+
+            //deleted main node in masterlist, as well as references in links
+            for(i = masterList.begin(); i != masterList.end(); i++)
+            {
+                if(i->first == myline)
+                {
+                    masterList.erase(myline);
+                    cout << "deleted " << myline << endl;
+                    break;
+                }
+
+                auto it = i->second.Links.find(myline);
+
+                if(it != i->second.Links.end())
+                {
+                    i->second.Links.erase(myline);
+                }
+            }
+        }
+    }
+
+    del_file.close();
+
+    if(un_file.is_open())
+    {
+        string myline;
+
+        while(getline(un_file, myline))
+        {
+            map<string, Node>::iterator i;
+
+            for(i = masterList.begin(); i != masterList.end(); i++)
+            {
+                if(i->second.Get_Name() == myline)
+                {
+                    i->second.isUsable = false;
+                }
+            }
+        }
+    }
+
+    un_file.close();
+
+    //delete the files
+    if(remove( "delete.txt" ) != 0)
+    {
+        cout << "Error deleting the file delete.txt" << endl; 
+    }
+    if(remove( "unusable.txt" ) != 0)
+    {
+        cout << "Error deleting the file unusable.txt" << endl; 
+    }
+}
+
+void generateList(map<string, Node> &masterList) {
     
     ifstream myfile;
 
@@ -45,7 +115,7 @@ void generateList(list<Node> &masterList) {
     myfile.close();
 }
 
-void SetDependentNode(Node parent, Node child, list<Node> &masterList) {
+void SetDependentNode(Node parent, Node child, map<string, Node> &masterList) {
 
     //take in a parent and child node; if child already exists, then grab it from master list and add to list for parent node; else, update parent node and master list
         //if parent already exists, grab it from master list and update its child list
@@ -54,15 +124,15 @@ void SetDependentNode(Node parent, Node child, list<Node> &masterList) {
         bool childFound = false;
 
         //check if parent and child already exists in masterlist
-        list<Node>::iterator it;
+        map<string, Node>::iterator it;
 
         for(it = masterList.begin(); it != masterList.end(); it++)
         {
             //if parent found
-            if(it->Get_Name() == parent.Get_Name())
+            if(it->first == parent.Get_Name())
             {
                 //set parent equal to node from list
-                parent.Links = it->Links;
+                parent.Links = it->second.Links;
 
                 //check if child already exists in the parent's map
                 if(parent.Get_Node(child.Get_Name()).Get_Name() == child.Get_Name())
@@ -75,15 +145,15 @@ void SetDependentNode(Node parent, Node child, list<Node> &masterList) {
                 }
 
                 //re-add parent to the masterList
-                it->Links = parent.Links;
-                it->isUsable = parent.isUsable;
+                it->second.Links = parent.Links;
+                it->second.isUsable = parent.isUsable;
 
                 parentFound = true;
 
             }
 
             //if child found
-            if(it->Get_Name() == child.Get_Name())
+            if(it->second.Get_Name() == child.Get_Name())
             {
                 childFound = true;
             }
@@ -95,31 +165,31 @@ void SetDependentNode(Node parent, Node child, list<Node> &masterList) {
             //add child to list and then add to masterlist
             parent.Add_Node(child.Get_Name());
             parent.isUsable = true;
-            masterList.push_back(parent);
+            masterList.insert(map<string, Node>::value_type(parent.Get_Name(), parent));
         }
 
         //if child not found
         if(childFound == false)
         {
-            masterList.push_back(child);
+            masterList.insert(map<string, Node>::value_type(child.Get_Name(), child));
         }
 }
 
-void menu(list<Node> &masterList) {
+void menu(map<string, Node> &masterList) {
 
     //read masterlist output into a temporary text file to be used by the python gui
     ofstream myfile("list.txt");
 
     /*iterate through masterList, output each parent with arrows to its children*/
 
-    list<Node>::iterator it;
+    map<string, Node>::iterator it;
 
     myfile << "ml: ";
 
     for(it = masterList.begin(); it != masterList.end(); it++)
     {
 
-        myfile << it->Get_Name() << " ";
+        myfile << it->second.Get_Name() << " ";
     }
 
     myfile << endl;
@@ -128,9 +198,9 @@ void menu(list<Node> &masterList) {
 
     for(it = masterList.begin(); it != masterList.end(); it++)
     {
-        myfile << it->Get_Name() << ": ";
+        myfile << it->second.Get_Name() << ": ";
 
-        for(i = it->Links.begin(); i != it->Links.end(); i++)
+        for(i = it->second.Links.begin(); i != it->second.Links.end(); i++)
         {
             myfile << i->first << " ";
         }

@@ -21,6 +21,7 @@ using namespace std;
         if(Links.find(node_name) == Links.end())
         {
             Node nullNode;
+            nullNode.Set_Name("null");
             return nullNode;
         }
         else 

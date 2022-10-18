@@ -16,15 +16,22 @@ def exitProgram():
 def deleteNode():
     input = deleteField.get(1.0, 'end-1c')
 
+    f_del = open('delete.txt', 'a')
+    f_un = open('unusable.txt', 'a')
+
     #iterate through nodes, if found, delete it
     #find nodes for which it is a child, and update their text to say 'not usable'
+
+    #create a text file and add a line for each node delete
+    #make a second text file for all nodes that are now unusable
+    #this will be passed back into C++ to update the lists in there
     for i in window.children:
         if i == input:
             window.children[i].destroy()
+            f_del.write(i + "\n")
             break
     
     for j in links:
-        #check for arrows going from this node to any children - if found
         for m in j[1]:
             if input == j[0]:
                 if canvas.find_withtag(j[0] + m) != None:
@@ -33,10 +40,13 @@ def deleteNode():
                 var = j[0] + "\n(not usable)"
                 try:
                     window.children[j[0]].configure(text=var)
+                    f_un.write(j[0] + "\n")
                 except Exception:
                     print("no parent node exists")
-                print(j[0] + m)
                 canvas.delete(j[0] + m)
+
+    f_del.close()
+    f_un.close()
 
 def fileReadIn():
     f = open("list.txt", "r")
